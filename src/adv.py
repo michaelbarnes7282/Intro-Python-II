@@ -1,4 +1,8 @@
 from room import Room
+from player import Player
+from item import Item
+from enemy import Enemy
+import sys
 
 # Declare all the rooms
 
@@ -21,6 +25,15 @@ chamber! Sadly, it has already been completely emptied by
 earlier adventurers. The only exit is to the south."""),
 }
 
+# Declare enemies
+
+enemy = {
+    'slime':  Enemy('Slime', 1, 3)
+}
+
+#Add enemies to rooms
+
+room['foyer'].enemy.append(enemy['slime'])
 
 # Link rooms together
 
@@ -38,7 +51,29 @@ room['treasure'].s_to = room['narrow']
 #
 
 # Make a new player object that is currently in the 'outside' room.
+player = Player(room['outside'])
 
+def combat():
+    while player.currentRoom.enemy:
+        print('\n')
+        print(f'A {player.currentRoom.enemy[0].name} stands before you!')
+        print(f'The {player.currentRoom.enemy[0].name} has {player.currentRoom.enemy[0].health} hitpoints and {player.currentRoom.enemy[0].strength} strength')
+        combat = input('enter a to attack, or r to run: ')
+        if combat == 'a':
+            player.currentRoom.enemy[0].health -= player.strength
+            print(f'You hit the {player.currentRoom.enemy[0].name} for {player.strength}!')
+            if player.currentRoom.enemy[0].health <= 0:
+                print(f'You have defeated the {player.currentRoom.enemy[0].name}!\n')
+                player.currentRoom.enemy.remove(player.currentRoom.enemy[0])
+                break
+            player.health -= player.currentRoom.enemy[0].strength
+            print(f'The {player.currentRoom.enemy[0].name} hit you for {player.currentRoom.enemy[0].strength}!')
+            if player.health <= 0:
+                print('Oh no! You have died, please try again.')
+                sys.exit(0)
+            print(f'You have {player.health} hitpoints left.')
+        if combat == 'r':
+            break
 # Write a loop that:
 #
 # * Prints the current room name
@@ -49,3 +84,39 @@ room['treasure'].s_to = room['narrow']
 # Print an error message if the movement isn't allowed.
 #
 # If the user enters "q", quit the game.
+
+while True:
+    combat()
+
+    print(f'You are now in the: {player.currentRoom.name}')
+    print(player.currentRoom.description)
+
+    move = input('Where would you like to go? enter n, e, s, w, or q to quit. ')
+    print('\n')
+
+    if move == 'q':
+        sys.exit(0)
+    elif move == 'w':
+        if hasattr(player.currentRoom, 'w_to'):
+            player.currentRoom = player.currentRoom.w_to
+        else:
+            print("You cannot go that direction, try again\n")
+
+    elif move == 'n':
+        if hasattr(player.currentRoom, 'n_to'):
+            player.currentRoom = player.currentRoom.n_to
+        else:
+            print("You cannot go that direction, try again\n")
+          
+    elif move == 'e':
+        if hasattr(player.currentRoom, 'e_to'):
+            player.currentRoom = player.currentRoom.e_to
+        else:
+            print("You cannot go that direction, try again\n")
+    
+    elif move == 's':
+        if hasattr(player.currentRoom, 's_to'):
+            player.currentRoom = player.currentRoom.s_to
+        else:
+            print("You cannot go that direction, try again\n")
+
